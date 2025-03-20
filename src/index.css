@@ -11,6 +11,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  height: 100vh;
   gap: 16px; 
 }
 .upload-svg {
@@ -29,4 +30,12 @@
   height: 20px;
   flex-shrink: 0; 
 }
+
+.bg-primary {
+    background-color: #334d6e;
+}
+.text-primary{
+    color: #334d6e;
+}
+
 

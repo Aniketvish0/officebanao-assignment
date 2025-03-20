@@ -1,10 +1,14 @@
-import UploadAsset from "./components/UploadAsset";
+import { Outlet } from "react-router-dom";
+import Header from "./components/Header";
 
 const App = () => {
   return (
-    <div className="flex-center-container">
-      <UploadAsset />
+    <>
+    <Header/>
+    <div className="container">
+      <Outlet />
     </div>
+    </>
   );
 };
 
