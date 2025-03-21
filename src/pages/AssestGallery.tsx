@@ -36,7 +36,8 @@ const AssetGallery = () => {
   });
 
   const handleImageClick = (index: number) => {
-    setSelectedImageIndex(index);
+    const originalIndex = assets.findIndex(asset => asset.id === sortedAssets[index].id);
+    setSelectedImageIndex(originalIndex);
     setShowImageEditorModal(true);
   };
 
@@ -48,6 +49,7 @@ const AssetGallery = () => {
     }
     setActiveDropdown(null);
   };
+
   return (
     <div className="container" style={{ marginTop: "150px" }}>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -101,7 +103,7 @@ const AssetGallery = () => {
             .join("")
             .slice(0, 2);
           
-          if (asset.isHidden) return null; // Skip hidden assets
+          if (asset.isHidden) return null;
 
           return (
             <div
@@ -151,14 +153,14 @@ const AssetGallery = () => {
                       <div
                         className="position-absolute bg-white shadow rounded p-2 text-dark"
                         style={{ right: "0", top: "100%", minWidth: "120px", zIndex: 10 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleImageClick(index)
-                        }}
                       >
                         <div
                           className="dropdown-item"
                           style={{ cursor: "pointer", padding: "5px" }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleImageClick(index);
+                          }}
                         >
                           Edit
                         </div>
@@ -183,7 +185,6 @@ const AssetGallery = () => {
       </Masonry>
       {showImageEditorModal && (
         <ImageEditor
-          allImages={sortedAssets}
           initialIndex={selectedImageIndex}
           onClose={() => setShowImageEditorModal(false)}
         />

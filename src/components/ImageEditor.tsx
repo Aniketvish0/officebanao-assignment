@@ -6,19 +6,18 @@ import { Crop, RotateCcw, RotateCw, FlipVertical, FlipHorizontal, RefreshCcw, Up
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import "swiper/swiper-bundle.css";
-import { ImageAsset } from "../types";
 import { useAssets } from "../context/AssestProvider";
 
 type ImageEditorProps = {
-  allImages: ImageAsset[];
   initialIndex: number;
   onClose: () => void;
 };
 
-const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onClose }) => {
+const ImageEditor: React.FC<ImageEditorProps> = ({ initialIndex, onClose }) => {
+  const { assets, updateAsset } = useAssets();
   const [currentIndex, setCurrentIndex] = useState<number>(initialIndex);
-  const [imageName, setImageName] = useState(allImages[initialIndex]?.name || "");
-  const [description, setDescription] = useState(allImages[initialIndex]?.description || "");
+  const [imageName, setImageName] = useState(assets[initialIndex]?.name || "");
+  const [description, setDescription] = useState(assets[initialIndex]?.description || "");
   
   const [crop, setCrop] = useState<CropType>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
@@ -27,41 +26,31 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
   const [flipH, setFlipH] = useState<boolean>(false);
   const [flipV, setFlipV] = useState<boolean>(false);
   
-  const [currentImages, setCurrentImages] = useState<ImageAsset[]>(allImages);
-  
   const imgRef = useRef<HTMLImageElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
-  
-  const { updateAsset } = useAssets();
   
   const applyTransformationsToImage = useCallback(() => {
     if (!imgRef.current || !canvasRef.current) return;
     
     const image = imgRef.current;
     const canvas = canvasRef.current;
-    
-    // Determine dimensions based on rotation
     const isRotated90or270 = Math.abs(rotation % 180) === 90;
     const canvasWidth = isRotated90or270 ? image.naturalHeight : image.naturalWidth;
     const canvasHeight = isRotated90or270 ? image.naturalWidth : image.naturalHeight;
     
-    // Set canvas dimensions
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
-    // Clear canvas
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'transparent';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Move to center of canvas
     ctx.translate(canvas.width / 2, canvas.height / 2);
     
-    // Apply transformations
     if (rotation !== 0) {
       ctx.rotate((rotation * Math.PI) / 180);
     }
@@ -69,12 +58,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
     if (flipH || flipV) {
       ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
     }
-    
-    // Calculate drawing dimensions and position
+  
     const drawWidth = image.naturalWidth;
     const drawHeight = image.naturalHeight;
     
-    // Draw from center
     ctx.drawImage(
       image,
       -drawWidth / 2,
@@ -83,38 +70,31 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
       drawHeight
     );
     
-    // Convert to blob and update
     canvas.toBlob((blob) => {
       if (!blob) return;
       
       const blobUrl = URL.createObjectURL(blob);
-      
-      const updatedImages = [...currentImages];
-      updatedImages[currentIndex] = {
-        ...updatedImages[currentIndex],
+      const updatedAsset = {
+        ...assets[currentIndex],
         src: blobUrl,
         name: imageName,
-        description: description
+        description: description,
       };
-      setCurrentImages(updatedImages);
+      updateAsset(updatedAsset, currentIndex);
       
-      updateAsset(updatedImages[currentIndex], currentIndex);
-      
-      // Reset transformation values after applying them
       setRotation(0);
       setFlipH(false);
       setFlipV(false);
-      
     }, 'image/jpeg', 0.95);
-    
-  }, [imgRef, canvasRef, rotation, flipH, flipV, currentImages, currentIndex, imageName, description, updateAsset]);
+  }, [imgRef, canvasRef, rotation, flipH, flipV, assets, currentIndex, imageName, description, updateAsset]);
+
   const handleCompleteCrop = useCallback(() => {
     if (!completedCrop || !imgRef.current || !canvasRef.current) return;
     
     const image = imgRef.current;
     const canvas = canvasRef.current;
-    const scaleX = image.naturalWidth/image.width;
-    const scaleY = image.naturalHeight/image.height;
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
     
     canvas.width = completedCrop.width;
     canvas.height = completedCrop.height;
@@ -123,17 +103,17 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
     if (!ctx) return;
     
     ctx.save();
-    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.translate(canvas.width / 2, canvas.height / 2);
     
     if (rotation !== 0) {
-      ctx.rotate((rotation * Math.PI)/180);
+      ctx.rotate((rotation * Math.PI) / 180);
     }
     
     if (flipH || flipV) {
       ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
     }
     
-    ctx.translate(-canvas.width/2, -canvas.height/2);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
     
     ctx.drawImage(
       image,
@@ -152,30 +132,22 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
       if (!blob) return;
       
       const blobUrl = URL.createObjectURL(blob);
-      
-      const updatedImages = [...currentImages];
-      updatedImages[currentIndex] = {
-        ...updatedImages[currentIndex],
+      const updatedAsset = {
+        ...assets[currentIndex],
         src: blobUrl,
         name: imageName,
-        description: description
+        description: description,
       };
-      setCurrentImages(updatedImages);
-      
-      updateAsset(updatedImages[currentIndex], currentIndex);
+      updateAsset(updatedAsset, currentIndex);
       
       setIsCropping(false);
       setCompletedCrop(null);
       setCrop(undefined);
-      
-      // Reset transformation values after applying them
       setRotation(0);
       setFlipH(false);
       setFlipV(false);
-      
     }, 'image/jpeg', 0.95);
-    
-  }, [completedCrop, imgRef, canvasRef, rotation, flipH, flipV, currentImages, currentIndex, imageName, description, updateAsset]);
+  }, [completedCrop, imgRef, canvasRef, rotation, flipH, flipV, assets, currentIndex, imageName, description, updateAsset]);
 
   const handleCropImage = () => {
     if (isCropping && completedCrop) {
@@ -211,17 +183,13 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
         const file = target.files[0];
         const reader = new FileReader();
         reader.onload = () => {
-          const updatedImages = [...currentImages];
-          updatedImages[currentIndex] = {
-            ...updatedImages[currentIndex],
+          const updatedAsset = {
+            ...assets[currentIndex],
             src: reader.result as string,
             name: imageName,
-            description: description
+            description: description,
           };
-          setCurrentImages(updatedImages);
-          updateAsset(updatedImages[currentIndex], currentIndex);
-          
-          // Reset transformations when replacing image
+          updateAsset(updatedAsset, currentIndex);
           setRotation(0);
           setFlipH(false);
           setFlipV(false);
@@ -233,20 +201,15 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
   };
   
   const handleSaveChanges = () => {
-    // If we have transformations to apply, do that first
     if (rotation !== 0 || flipH || flipV) {
       applyTransformationsToImage();
     } else {
-      // Otherwise just update the metadata
-      const updatedImage = {
-        ...currentImages[currentIndex],
+      const updatedAsset = {
+        ...assets[currentIndex],
         name: imageName,
         description: description,
       };
-      const updatedImages = [...currentImages];
-      updatedImages[currentIndex] = updatedImage;
-      setCurrentImages(updatedImages);
-      updateAsset(updatedImage, currentIndex);
+      updateAsset(updatedAsset, currentIndex);
     }
     onClose();
   };
@@ -256,12 +219,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
     setCompletedCrop(null);
     setCrop(undefined);
   };
-  
+
   return (
     <Modal show centered fullscreen={true} onHide={onClose}>
       <Modal.Header closeButton className="border border-0" style={{ padding: "5px 20px" }}>
         <Modal.Title style={{ color: "#334d6e" }}>
-          {isCropping ? "Crop Image" : "Add Asset"}
+          {isCropping ? "Crop Image" : "Edit Asset"}
         </Modal.Title>
         {isCropping && (
           <div className="ms-auto me-3">
@@ -296,14 +259,14 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
               }}
               onSlideChange={(swiper) => {
                 setCurrentIndex(swiper.activeIndex);
-                setImageName(currentImages[swiper.activeIndex]?.name || "");
-                setDescription(currentImages[swiper.activeIndex]?.description || "");
+                setImageName(assets[swiper.activeIndex]?.name || "");
+                setDescription(assets[swiper.activeIndex]?.description || "");
                 setRotation(0);
                 setFlipH(false);
                 setFlipV(false);
               }}
             >
-              {currentImages.map((img, index) => (
+              {assets.map((img, index) => (
                 <SwiperSlide key={`slide-${index}`}>
                   <div className="position-relative">
                     <img
@@ -332,7 +295,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
               >
                 <img
                   ref={imgRef}
-                  src={currentImages[currentIndex].src}
+                  src={assets[currentIndex].src}
                   alt={`preview-${currentIndex}`}
                   className="img-fluid rounded"
                   style={{ 
