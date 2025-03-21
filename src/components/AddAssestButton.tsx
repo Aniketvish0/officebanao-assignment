@@ -17,6 +17,7 @@ const AddAssetButton = () => {
       if (files && files.length > 0) {
         const fileNames = Array.from(files).map((file) => ({
           id: `asset-${Date.now()}-${Math.random()}`,
+          date : String(Date.now()),
           src: URL.createObjectURL(file),
           file: file,
           name: `Asset ${String(Date.now()).slice(-3)}`,
