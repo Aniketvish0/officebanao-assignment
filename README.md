@@ -1,54 +1,71 @@
-# React + TypeScript + Vite
+# **Imagify - OfficeBanao Assignment**  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live Preview:**  [Imagify - OfficeBanao](https://officebanao-assignment-ten.vercel.app/)  
 
-Currently, two official plugins are available:
+### **TechStack used**  
+  I have used 
+ **React.js, TypeScript, and Bootstrap** for building this project  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+### **Features Implemented**  
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Upload Images** – Users can add new assets (images) to the gallery.  
+-  **Edit Images** – Crop, rotate, flip (Horizontal/ Vertical).   
+- **Search Filter** – Find images by name.  
+- **Sorting Options** – Sort images by:  
+  -  **Newest First**  
+  -  **Oldest First**  
+  -  **Alphabetically (A-Z)**  
+- **Context API** - Used react context API for state Management.
+- **Masonry Grid Layout** – Added Mansonry Layout for rendering assets. 
+- **Local Storage** – Saves images and their metadata in local storage.   
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## File Structutre
+
+```
+└── 📁officebanao-assignment
+    └── 📁public
+        └── upload.svg
+    └── 📁src
+        └── App.tsx
+        └── 📁components
+            └── AddAssestButton.tsx
+            └── Header.tsx
+            └── ImageEditor.tsx
+            └── UploadAsset.tsx
+        └── 📁context
+            └── AssestProvider.tsx
+        └── 📁icons
+            └── Github.tsx
+            └── Upload.tsx
+        └── index.css
+        └── main.tsx
+        └── 📁pages
+            └── AssestGallery.tsx
+        └── 📁types
+            └── index.ts
+        └── vite-env.d.ts
+    └── .gitignore
+    └── eslint.config.js
+    └── index.html
+    └── package.json
+    └── pnpm-lock.yaml
+    └── README.md
+    └── tsconfig.app.json
+    └── tsconfig.json
+    └── tsconfig.node.json
+    └── vercel.json
+    └── vite.config.ts
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Author 
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Name : **Aniket Vishwakarma** 
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Contact : [Email](mailto:aniketvishwakarma2004@gmail.com)
+
+
+Twitter : [Aniketvish0](x.com/aniketvish0)
+
+LinkedIn : [Aniketvish0](linkedin.com/in/aniketvish0)
