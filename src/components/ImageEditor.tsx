@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
-import { Crop, RotateCcw, RotateCw, FlipVertical, FlipHorizontal, RefreshCcw } from "lucide-react";
+import { Crop, RotateCcw, RotateCw, FlipVertical, FlipHorizontal, RefreshCcw, Upload } from "lucide-react";
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import "swiper/swiper-bundle.css";
@@ -35,23 +35,33 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
   
   const { updateAsset } = useAssets();
   
-  const handleCompleteCrop = useCallback(() => {
-    if (!completedCrop || !imgRef.current || !canvasRef.current) return;
+  const applyTransformationsToImage = useCallback(() => {
+    if (!imgRef.current || !canvasRef.current) return;
     
     const image = imgRef.current;
     const canvas = canvasRef.current;
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
     
-    canvas.width = completedCrop.width;
-    canvas.height = completedCrop.height;
+    // Determine dimensions based on rotation
+    const isRotated90or270 = Math.abs(rotation % 180) === 90;
+    const canvasWidth = isRotated90or270 ? image.naturalHeight : image.naturalWidth;
+    const canvasHeight = isRotated90or270 ? image.naturalWidth : image.naturalHeight;
+    
+    // Set canvas dimensions
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    ctx.save();
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'transparent';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Move to center of canvas
     ctx.translate(canvas.width / 2, canvas.height / 2);
     
+    // Apply transformations
     if (rotation !== 0) {
       ctx.rotate((rotation * Math.PI) / 180);
     }
@@ -60,7 +70,70 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
       ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
     }
     
-    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    // Calculate drawing dimensions and position
+    const drawWidth = image.naturalWidth;
+    const drawHeight = image.naturalHeight;
+    
+    // Draw from center
+    ctx.drawImage(
+      image,
+      -drawWidth / 2,
+      -drawHeight / 2,
+      drawWidth,
+      drawHeight
+    );
+    
+    // Convert to blob and update
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const updatedImages = [...currentImages];
+      updatedImages[currentIndex] = {
+        ...updatedImages[currentIndex],
+        src: blobUrl,
+        name: imageName,
+        description: description
+      };
+      setCurrentImages(updatedImages);
+      
+      updateAsset(updatedImages[currentIndex], currentIndex);
+      
+      // Reset transformation values after applying them
+      setRotation(0);
+      setFlipH(false);
+      setFlipV(false);
+      
+    }, 'image/jpeg', 0.95);
+    
+  }, [imgRef, canvasRef, rotation, flipH, flipV, currentImages, currentIndex, imageName, description, updateAsset]);
+  const handleCompleteCrop = useCallback(() => {
+    if (!completedCrop || !imgRef.current || !canvasRef.current) return;
+    
+    const image = imgRef.current;
+    const canvas = canvasRef.current;
+    const scaleX = image.naturalWidth/image.width;
+    const scaleY = image.naturalHeight/image.height;
+    
+    canvas.width = completedCrop.width;
+    canvas.height = completedCrop.height;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.save();
+    ctx.translate(canvas.width/2, canvas.height/2);
+    
+    if (rotation !== 0) {
+      ctx.rotate((rotation * Math.PI)/180);
+    }
+    
+    if (flipH || flipV) {
+      ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+    }
+    
+    ctx.translate(-canvas.width/2, -canvas.height/2);
     
     ctx.drawImage(
       image,
@@ -95,6 +168,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
       setCompletedCrop(null);
       setCrop(undefined);
       
+      // Reset transformation values after applying them
+      setRotation(0);
+      setFlipH(false);
+      setFlipV(false);
+      
     }, 'image/jpeg', 0.95);
     
   }, [completedCrop, imgRef, canvasRef, rotation, flipH, flipV, currentImages, currentIndex, imageName, description, updateAsset]);
@@ -107,7 +185,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
     }
   };
   
-
   const handleRotateAntiClockWise = () => {
     setRotation((prev) => (prev - 90) % 360);
   };
@@ -143,24 +220,37 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
           };
           setCurrentImages(updatedImages);
           updateAsset(updatedImages[currentIndex], currentIndex);
+          
+          // Reset transformations when replacing image
+          setRotation(0);
+          setFlipH(false);
+          setFlipV(false);
         };
         reader.readAsDataURL(file);
       }
     };
     fileInput.click();
   };
+  
   const handleSaveChanges = () => {
-    const updatedImage = {
-      ...currentImages[currentIndex],
-      name: imageName,
-      description: description,
-    };
-    const updatedImages = [...currentImages];
-    updatedImages[currentIndex] = updatedImage;
-    setCurrentImages(updatedImages);
-    updateAsset(updatedImage, currentIndex);
+    // If we have transformations to apply, do that first
+    if (rotation !== 0 || flipH || flipV) {
+      applyTransformationsToImage();
+    } else {
+      // Otherwise just update the metadata
+      const updatedImage = {
+        ...currentImages[currentIndex],
+        name: imageName,
+        description: description,
+      };
+      const updatedImages = [...currentImages];
+      updatedImages[currentIndex] = updatedImage;
+      setCurrentImages(updatedImages);
+      updateAsset(updatedImage, currentIndex);
+    }
     onClose();
   };
+  
   const handleCancelCrop = () => {
     setIsCropping(false);
     setCompletedCrop(null);
@@ -217,6 +307,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
                 <SwiperSlide key={`slide-${index}`}>
                   <div className="position-relative">
                     <img
+                      ref={index === currentIndex ? imgRef : null}
                       src={img.src}
                       alt={`preview-${index}`}
                       className="img-fluid rounded"
@@ -326,11 +417,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ allImages, initialIndex, onCl
           </Form>
           <Button 
             variant="secondary" 
-            className="w-100 bottom-0 mb-1 mt-auto" 
+            className="w-100 bottom-0 mb-1 mt-auto d-flex align-items-center justify-content-center gap-2" 
             style={{ backgroundColor: "#334d6e" }}
             onClick={handleSaveChanges}
           >
-            Save Changes
+            <Upload size={20}/> Upload
           </Button>
         </div>
       </Modal.Body>

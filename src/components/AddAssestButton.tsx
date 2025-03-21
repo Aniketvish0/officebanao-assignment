@@ -1,13 +1,10 @@
-import { useState } from "react";
 import { Button } from "react-bootstrap";
 import { Plus } from "lucide-react";
 import { useAssets } from "../context/AssestProvider";
-import { ImageAsset } from "../types";
 import { useNavigate } from "react-router-dom";
 
 const AddAssetButton = () => {
   const { addAssets } = useAssets();
-  const [selectedImages, setSelectedImages] = useState<ImageAsset[]>([]);
   const navigate = useNavigate();
 
   const handleUploadAsset = () => {
@@ -24,8 +21,6 @@ const AddAssetButton = () => {
           file: file,
           name: `Asset ${String(Date.now()).slice(-3)}`,
         }));
-
-        setSelectedImages(fileNames);
         addAssets(fileNames);
         navigate('/gallery')
       }
@@ -40,8 +35,8 @@ const AddAssetButton = () => {
       style={{ backgroundColor: "#334d6e", borderRadius: "4px", padding: "12px 18px" }}
       onClick={handleUploadAsset}
     >
-      <Plus />
-      <span>Add</span>
+        <Plus />
+        <span>Add</span>
     </Button>
   );
 };
