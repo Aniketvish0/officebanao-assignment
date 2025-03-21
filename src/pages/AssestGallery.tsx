@@ -40,15 +40,6 @@ const AssetGallery = () => {
     setShowImageEditorModal(true);
   };
 
-  const handleDelete = (id: string) => {
-    const { assets, addAssets } = useAssets(); 
-    const updatedAssets = assets.filter(asset => asset.id !== id);
-    localStorage.setItem("assets", JSON.stringify(updatedAssets));
-    addAssets(updatedAssets);
-    setActiveDropdown(null);
-  };
-  
-
   const handleHide = (id: string) => {
     const index = assets.findIndex(asset => asset.id === id);
     if (index !== -1) {
@@ -170,16 +161,6 @@ const AssetGallery = () => {
                           style={{ cursor: "pointer", padding: "5px" }}
                         >
                           Edit
-                        </div>
-                        <div
-                          className="dropdown-item text-danger"
-                          style={{ cursor: "pointer", padding: "5px" }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(asset.id);
-                          }}
-                        >
-                          Delete
                         </div>
                         <div
                           className="dropdown-item"
