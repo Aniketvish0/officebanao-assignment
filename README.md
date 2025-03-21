@@ -7,11 +7,16 @@
  **React.js, TypeScript, and Bootstrap** for building this project  
 
 ---
-
 ### **Features Implemented**  
 
 - **Upload Images** – Users can add new assets (images) to the gallery.  
 -  **Edit Images** – Crop, rotate, flip (Horizontal/ Vertical).   
+
+
+
+` There is an Apply Crop Button to apply the crop`
+
+ ![alt text](public/image.png)
 - **Search Filter** – Find images by name.  
 - **Sorting Options** – Sort images by:  
   -  **Newest First**  
