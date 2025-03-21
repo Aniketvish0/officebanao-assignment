@@ -20,9 +20,14 @@
 }
 
 .upload-button {
-  align-items: center;
-  gap: 8px; 
-  padding: 8px 16px;
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+width: 87px;
+height: 40px;
+flex: none;
+order: 0;
+flex-grow: 0;
 }
 
 .upload-button svg {
