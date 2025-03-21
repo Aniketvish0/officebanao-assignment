@@ -224,7 +224,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ initialIndex, onClose }) => {
     <Modal show centered fullscreen={true} onHide={onClose}>
       <Modal.Header closeButton className="border border-0" style={{ padding: "5px 20px" }}>
         <Modal.Title style={{ color: "#334d6e" }}>
-          {isCropping ? "Crop Image" : "Edit Asset"}
+          Add Asset
         </Modal.Title>
         {isCropping && (
           <div className="ms-auto me-3">
