@@ -52,44 +52,59 @@ const AssetGallery = () => {
 
   return (
     <div className="container" style={{ marginTop: "150px" }}>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div className="d-flex gap-4 position-relative">
-          <div className="d-flex align-items-center gap-2 border border-1 rounded px-2" 
-               style={{ width: "450px", borderColor: "#334d6e", boxShadow: "none" }}>
-            <Form.Control
-              type="text"
-              placeholder="Search Assets"
-              className="border border-0"
-              style={{ outline: "none", boxShadow: "none" }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Search size={20} style={{ cursor: "pointer" }} />
-          </div>
-          <div className="position-relative">
-            <Button
-              variant="light"
-              className="d-flex align-items-center justify-content-between gap-2 px-3 py-2 border"
-              style={{ backgroundColor: "transparent", color: "#707683", width: "180px" }}
-              onClick={() => setShowSortOptions(!showSortOptions)}
-            >
-              {sortOrder === "newest" ? "Newest First" : sortOrder === "oldest" ? "Oldest First" : "A-Z"}
-              <ArrowDownUp size={14} />
-            </Button>
-            {showSortOptions && (
-              <div className="position-absolute bg-white border rounded shadow-sm"
-                   style={{ top: "110%", left: 0, width: "180px", zIndex: 10 }}>
-                <div className="d-flex flex-column" style={{ gap: "8px", padding: "8px" }}>
-                  <div style={{ cursor: "pointer" }} onClick={() => handleSortChange("newest")}>Newest First</div>
-                  <div style={{ cursor: "pointer" }} onClick={() => handleSortChange("oldest")}>Oldest First</div>
-                  <div style={{ cursor: "pointer" }} onClick={() => handleSortChange("AtoZ")}>A-Z</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        <AddAssetButton />
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-3">
+      <div className="d-flex flex-column flex-sm-row gap-3 w-100">
+      <div
+        className="d-flex align-items-center gap-2 border border-1 rounded px-2 flex-grow-1"
+        style={{ borderColor: "#334d6e", boxShadow: "none", minWidth: "250px" }}
+      >
+        <Form.Control
+          type="text"
+          placeholder="Search Assets"
+          className="border border-0 w-100"
+          style={{ outline: "none", boxShadow: "none" }}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <Search size={20} style={{ cursor: "pointer" }} />
       </div>
+      <div className="position-relative">
+        <Button
+          variant="light"
+          className="d-flex align-items-center justify-content-between gap-2 px-3 py-2 border w-100"
+          style={{
+            backgroundColor: "transparent",
+            color: "#707683",
+            minWidth: "150px",
+          }}
+          onClick={() => setShowSortOptions(!showSortOptions)}
+        >
+          {sortOrder === "newest" ? "Newest First" : sortOrder === "oldest" ? "Oldest First" : "A-Z"}
+          <ArrowDownUp size={14} />
+        </Button>
+        {showSortOptions && (
+          <div
+            className="position-absolute bg-white border rounded shadow-sm"
+            style={{ top: "110%", left: 0, width: "100%", zIndex: 10, minWidth: "150px" }}
+          >
+            <div className="d-flex flex-column" style={{ gap: "8px", padding: "8px" }}>
+              <div style={{ cursor: "pointer" }} onClick={() => handleSortChange("newest")}>
+                Newest First
+              </div>
+              <div style={{ cursor: "pointer" }} onClick={() => handleSortChange("oldest")}>
+                Oldest First
+              </div>
+              <div style={{ cursor: "pointer" }} onClick={() => handleSortChange("AtoZ")}>
+                A-Z
+              </div>
+            </div>
+          </div>
+        )}
+        </div>
+        </div>
+      <AddAssetButton />
+      </div>
+
 
       <Masonry
         breakpointCols={{ default: 4, 1100: 3, 980: 2, 600: 1 }}
